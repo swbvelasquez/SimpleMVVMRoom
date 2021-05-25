@@ -5,13 +5,17 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
+import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.tutoriales.simplemvvmroom.model.entities.Note;
 import com.tutoriales.simplemvvmroom.model.interfaces.NoteDao;
-
+@Database(
+        entities = {Note.class}
+        ,version = 1
+)
 public abstract class AppDataBase extends RoomDatabase {
     private static AppDataBase instance;
 
