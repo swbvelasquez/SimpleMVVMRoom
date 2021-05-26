@@ -75,13 +75,20 @@ public class MainActivity extends AppCompatActivity {
                         if(result.getResultCode()==RESULT_OK){
                             String title = result.getData().getStringExtra("note_title");
                             String description = result.getData().getStringExtra("note_description");
-                            int priority = result.getData().getIntExtra("note_priority",0);
+                            int priority = result.getData().getIntExtra("note_priority",1);
+                            long id = result.getData().getLongExtra("note_id",0);
 
                             Note note = new Note();
                             note.setTitle(title);
                             note.setDescription(description);
                             note.setPriority(priority);
-                            noteViewModel.insert(note);
+                            note.setId(id);
+
+                            if(id>0){
+                                noteViewModel.update(note);
+                            }else{
+                                noteViewModel.insert(note);
+                            }
                         }
                     }
                 }
@@ -103,6 +110,19 @@ public class MainActivity extends AppCompatActivity {
 
         rvNoteAdapter = new NoteRecyclerAdapter();
         rvNotes.setAdapter(rvNoteAdapter);
+
+        //al clickear una fila del recycler
+        rvNoteAdapter.setOnItemClickListener(new NoteRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+                Intent intent = new Intent(MainActivity.this,AddNoteActivity.class);
+                intent.putExtra("note_title",note.getTitle());
+                intent.putExtra("note_description",note.getDescription());
+                intent.putExtra("note_priority",note.getPriority());
+                intent.putExtra("note_id",note.getId());
+                launcher.launch(intent);
+            }
+        });
 
         //animacion para el recycler
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {

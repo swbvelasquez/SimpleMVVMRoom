@@ -3,6 +3,7 @@ package com.tutoriales.simplemvvmroom.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import java.util.List;
 public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapter.NoteViewHolder> {
 
     private List<Note> noteList;
+    private OnItemClickListener listener;
 
     public NoteRecyclerAdapter() {
         noteList=new ArrayList<>();
@@ -49,7 +51,11 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
         return noteList.get(position);
     }
 
-    public static class NoteViewHolder extends RecyclerView.ViewHolder{
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.listener=listener;
+    }
+
+    public class NoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle,tvDescription,tvPriority;
 
         public NoteViewHolder(View itemView){
@@ -69,6 +75,19 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
             tvPriority = itemView.findViewById(R.id.tvPriority);
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvDescription = itemView.findViewById(R.id.tvDescription);
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            if(position!=RecyclerView.NO_POSITION && listener!=null) {
+                listener.onItemClick(noteList.get(position));
+            }
+        }
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(Note note);
     }
 }

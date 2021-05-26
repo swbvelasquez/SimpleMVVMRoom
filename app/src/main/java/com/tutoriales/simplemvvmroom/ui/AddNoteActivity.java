@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.Toast;
 
 import com.tutoriales.simplemvvmroom.R;
 
@@ -17,6 +18,7 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private EditText etTitle,etDescription;
     private NumberPicker npPriority;
+    private long idNote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class AddNoteActivity extends AppCompatActivity {
         intent.putExtra("note_title",etTitle.getText().toString());
         intent.putExtra("note_description",etDescription.getText().toString());
         intent.putExtra("note_priority",npPriority.getValue());
+        intent.putExtra("note_id",idNote);
         setResult(RESULT_OK,intent);
         finish();
     }
@@ -60,8 +63,21 @@ public class AddNoteActivity extends AppCompatActivity {
         npPriority = findViewById(R.id.npPriority);
         npPriority.setMinValue(1);
         npPriority.setMaxValue(10);
-
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
-        setTitle("Add Note");
+
+        Bundle bundle = getIntent().getExtras();
+
+        if(bundle!=null){
+            etTitle.setText(bundle.getString("note_title",""));
+            etDescription.setText(bundle.getString("note_description",""));
+            npPriority.setValue(bundle.getInt("note_priority",1));
+            idNote = bundle.getLong("note_id",0);
+        }
+
+        if(idNote>0) {
+            setTitle("Edit Note");
+        }else{
+            setTitle("Add Note");
+        }
     }
 }
