@@ -4,14 +4,19 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,6 +38,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setView();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.delete_note_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        boolean result;
+        if(itemId==R.id.itmDelete){
+            deleteAllNotes();
+            result=true;
+        }else{
+            result=super.onOptionsItemSelected(item);
+        }
+        return result;
+    }
+
+    private void deleteAllNotes(){
+        noteViewModel.deleteAllNotes();
     }
 
     private void setView(){
@@ -67,12 +96,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //configurando el recycler
         rvNotes = findViewById(R.id.rvNotes);
         rvNotes.setLayoutManager(new LinearLayoutManager(this));
         rvNotes.setHasFixedSize(true);
 
         rvNoteAdapter = new NoteRecyclerAdapter();
         rvNotes.setAdapter(rvNoteAdapter);
+
+        //animacion para el recycler
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                //si mueve a la derecha o izquierda, borra la nota
+                if(direction==ItemTouchHelper.LEFT || direction==ItemTouchHelper.RIGHT){
+                    noteViewModel.delete(rvNoteAdapter.getNote(viewHolder.getAdapterPosition()));
+                }
+            }
+        });
+        itemTouchHelper.attachToRecyclerView(rvNotes);
 
         //configurando el view model
         noteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
