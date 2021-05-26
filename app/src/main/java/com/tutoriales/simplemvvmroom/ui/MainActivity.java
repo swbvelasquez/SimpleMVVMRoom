@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Note> noteList) {
                 //update ui
-                rvNoteAdapter.setNotes(noteList);
+                rvNoteAdapter.submitList(noteList);
             }
         });
     }

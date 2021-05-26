@@ -7,6 +7,8 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tutoriales.simplemvvmroom.R;
@@ -15,13 +17,11 @@ import com.tutoriales.simplemvvmroom.model.entities.Note;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapter.NoteViewHolder> {
-
-    private List<Note> noteList;
+public class NoteRecyclerAdapter extends ListAdapter<Note,NoteRecyclerAdapter.NoteViewHolder> {
     private OnItemClickListener listener;
 
     public NoteRecyclerAdapter() {
-        noteList=new ArrayList<>();
+        super(diffCallback);
     }
 
     @NonNull
@@ -34,21 +34,11 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull NoteRecyclerAdapter.NoteViewHolder holder, int position) {
-        holder.bindViewHolder(noteList.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return noteList.size();
-    }
-
-    public void setNotes(List<Note> noteList) {
-        this.noteList = noteList;
-        notifyDataSetChanged();
+        holder.bindViewHolder(getItem(position));
     }
 
     public Note getNote(int position){
-        return noteList.get(position);
+        return getItem(position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){
@@ -82,7 +72,7 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
         public void onClick(View v) {
             int position = getAdapterPosition();
             if(position!=RecyclerView.NO_POSITION && listener!=null) {
-                listener.onItemClick(noteList.get(position));
+                listener.onItemClick(getItem(position));
             }
         }
     }
@@ -90,4 +80,25 @@ public class NoteRecyclerAdapter extends RecyclerView.Adapter<NoteRecyclerAdapte
     public interface OnItemClickListener{
         void onItemClick(Note note);
     }
+
+    private static final DiffUtil.ItemCallback<Note> diffCallback = new DiffUtil.ItemCallback<Note>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
+            return oldItem.getId()==newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Note oldItem, @NonNull Note newItem) {
+
+            boolean result=false;
+
+            if(oldItem.getTitle().equals(newItem.getTitle())
+                && oldItem.getDescription().equals(newItem.getDescription())
+                && oldItem.getPriority() == newItem.getPriority()){
+                result=true;
+            }
+
+            return result;
+        }
+    };
 }
